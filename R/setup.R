@@ -1,0 +1,43 @@
+#' Setup universes
+#'
+#' List app installations and setup universe repos.
+#'
+#' @export
+setup_universes <- function(){
+  all <- ghapps::gh_app_installation_list(app_id = '87942')
+  installs <- vapply(all, function(x){x$account$login}, character(1))
+  cat("Found installations for:", installs, sep = '\n - ')
+  current <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
+  universes <- vapply(current, function(x){x$name}, character(1))
+  cat("Found universes for:", universes, sep = '\n - ')
+  newbies <- setdiff(installs, c(universes, skiplist))
+  if(!length(newbies)){
+    cat("No new installations found.\n")
+    return()
+  }
+  cat("Found NEW installations:", newbies, sep = '\n - ')
+  lapply(newbies, create_universe_repo)
+  invisible()
+}
+
+# Ignore these orgs
+skiplist <- 'ropenscilabs'
+
+create_universe_repo <- function(owner){
+  cat("Setup universe for:", owner, '\n')
+  desc <- paste("Auto-generated universe for:", owner)
+  gh::gh('/orgs/r-universe/repos', name = owner, description = desc,
+         private = FALSE, .method = 'POST')
+  repo <- file.path(tempdir(), paste0(owner, '-universe'))
+  remote <- paste0('https://github.com/r-universe/', owner)
+  gert::git_clone('https://github.com/r-universe-org/universe-template', path = repo)
+  pwd <- getwd()
+  on.exit(setwd(pwd))
+  setwd(repo)
+  gert::git_remote_add(remote, name = 'universe')
+  gert::git_push('universe')
+  action <- sprintf('/repos/r-universe/%s/actions/workflows/sync.yml/dispatches', owner)
+  cat("Push OK! Triggering initial sync.yml action...\n")
+  gh::gh(action, .method = 'POST', ref = 'master')
+  cat("Done!\n")
+}

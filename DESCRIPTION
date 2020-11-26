@@ -1,0 +1,16 @@
+Package: setupuniverse
+Type: Package
+Title: GitHub App to Setup Universes
+Version: 0.1.0
+Authors@R: person("Jeroen", "Ooms", ,"jeroen@berkeley.edu", 
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4035-0289"))
+Description: List GitHub app installations and setup universe repositories.
+Encoding: UTF-8
+LazyData: true
+Imports:
+    gert,
+    gh,
+    ghapps
+Remotes: jeroen/ghapps
+RoxygenNote: 7.1.1
+License: Apache License 2.0
