@@ -36,8 +36,5 @@ create_universe_repo <- function(owner){
   setwd(repo)
   gert::git_remote_add(remote, name = 'universe')
   gert::git_push('universe')
-  action <- sprintf('/repos/r-universe/%s/actions/workflows/sync.yml/dispatches', owner)
-  cat("Push OK! Triggering initial sync.yml action...\n")
-  gh::gh(action, .method = 'POST', ref = 'master')
   cat("Done!\n")
 }
