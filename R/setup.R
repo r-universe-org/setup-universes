@@ -16,6 +16,7 @@ setup_universes <- function(){
     return()
   }
   cat("Found NEW installations:", newbies, sep = '\n - ')
+  print(gh::gh_whoami())
   lapply(newbies, create_universe_repo)
   invisible()
 }
