@@ -3,9 +3,3 @@ description: 'Action that checks for new app installations'
 runs:
   using: 'docker'
   image: 'docker://runiverse/setup-universes'
-  args:
-    - ${{ inputs.repo }}
-    - ${{ inputs.sha }}
-    - ${{ inputs.url }}
-    - ${{ inputs.universe }}
-    - ${{ inputs.deployed_packages }}
