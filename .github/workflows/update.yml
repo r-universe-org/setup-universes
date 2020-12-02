@@ -14,3 +14,4 @@ jobs:
         uses: r-universe-org/setup-universes@master
         env:
           GH_APP_KEY: ${{ secrets.GH_APP_KEY }}
+          GITHUB_PAT: ${{ secrets.GHPAT }}
