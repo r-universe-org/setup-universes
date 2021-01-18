@@ -9,7 +9,9 @@ setup_universes <- function(){
   cat("Found installations for:", installs, sep = '\n - ')
   current <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
   universes <- vapply(current, function(x){x$name}, character(1))
+  universes <- tolower(universes)
   cat("Found universes for:", universes, sep = '\n - ')
+  installs <- tolower(installs)
   newbies <- setdiff(installs, c(universes, skiplist))
   if(!length(newbies)){
     cat("No new installations found.\n")
