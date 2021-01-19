@@ -28,9 +28,10 @@ skiplist <- 'ropenscilabs'
 
 create_universe_repo <- function(owner){
   cat("Setup universe for:", owner, '\n')
-  desc <- paste("Auto-generated universe for:", owner)
+  desc <- paste("Source universe for:", owner)
+  homepage <- sprintf("https://%s.r-universe.dev", owner)
   gh::gh('/orgs/r-universe/repos', name = owner, description = desc,
-         private = FALSE, .method = 'POST')
+         homepage = homepage, private = FALSE, .method = 'POST')
   cat(sprintf("Repo 'r-universe/%s' created! Waiting a few seconds before pushing...\n", owner))
   for(i in 10:1){cat(i, '\n'); Sys.sleep(1)}
   repo <- file.path(tempdir(), paste0(owner, '-universe'))
