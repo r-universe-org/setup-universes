@@ -2,6 +2,10 @@ on:
   schedule:
     - cron:  '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      username:
+        description: 'GitHub username to enable'
+        required: false
   repository_dispatch:
     types: [created]
 
@@ -17,3 +21,4 @@ jobs:
         env:
           GH_APP_KEY: ${{ secrets.GH_APP_KEY }}
           GITHUB_PAT: ${{ secrets.GHPAT }}
+          username: ${{ github.event.inputs.username }}

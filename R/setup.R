@@ -26,6 +26,8 @@ setup_universes <- function(){
 # Ignore these orgs
 skiplist <- 'ropenscilabs'
 
+#' @export create_universe_repo
+#' @param owner create universe for this github account
 create_universe_repo <- function(owner){
   cat("Setup universe for:", owner, '\n')
   desc <- paste("Source universe for:", owner)
