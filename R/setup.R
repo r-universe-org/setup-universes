@@ -2,31 +2,57 @@
 #'
 #' List app installations and setup universe repos.
 #'
+#' @rdname setup_universes
 #' @export
 setup_universes <- function(){
-  all <- ghapps::gh_app_installation_list(app_id = '87942')
-  installs <- vapply(all, function(x){x$account$login}, character(1))
+  installs <- list_app_installations()
   cat("Found installations for:", installs, sep = '\n - ')
-  current <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
-  universes <- vapply(current, function(x){x$name}, character(1))
-  universes <- tolower(universes)
+  universes <- list_universes()
   cat("Found universes for:", universes, sep = '\n - ')
   installs <- tolower(installs)
   newbies <- setdiff(installs, c(universes, skiplist))
   if(!length(newbies)){
-    cat("No new installations found.\n")
-    return()
+    cat("No NEW installations found.\n")
+  } else {
+    cat("Found NEW installations:", newbies, sep = '\n - ')
+    print(gh::gh_whoami())
+    lapply(newbies, create_universe_repo)
   }
-  cat("Found NEW installations:", newbies, sep = '\n - ')
-  print(gh::gh_whoami())
-  lapply(newbies, create_universe_repo)
+  deleted <- setdiff(universes, c(installs, testusers))
+  if(length(deleted)){
+    cat("Found DELETED installations:", deleted, sep = '\n - ')
+    if(length(deleted) > 20){
+      cat("This number looks too large. Not deleting anything.\n")
+      stop("Failed to list app installations?")
+    } else if(length(deleted) > 5) {
+      cat("This number looks a bit large. Only deleting empty universes.\n")
+      lapply(deleted, delete_universe_repo, only_if_empty = TRUE)
+    } else {
+      lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
+    }
+  }
   invisible()
+}
+
+list_app_installations <- function(){
+  all <- ghapps::gh_app_installation_list(app_id = '87942')
+  vapply(all, function(x){x$account$login}, character(1))
+}
+
+list_universes <- function(){
+  current <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
+  tolower(vapply(current, function(x){x$name}, character(1)))
 }
 
 # Ignore these orgs
 skiplist <- 'ropenscilabs'
+testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
+               "hrbrmstr", "karthik", "mmaechler", "r-music", "rcppcore", "richfitz",
+               "rladies", "sckott", "statnet", "thomasp85", "tidymodels", "tidyverse",
+               "yihui", "test")
 
-#' @export create_universe_repo
+#' @export
+#' @rdname setup_universes
 #' @param owner create universe for this github account
 create_universe_repo <- function(owner){
   cat("Setup universe for:", owner, '\n')
@@ -45,4 +71,20 @@ create_universe_repo <- function(owner){
   gert::git_remote_add(remote, name = 'universe')
   gert::git_push('universe')
   cat("Done!\n")
+}
+
+#' @export
+#' @rdname setup_universes
+#' @param only_if_empty only delete the universe if there are no deployed packages
+delete_universe_repo <- function(owner, only_if_empty = FALSE){
+  if(only_if_empty){
+    url <- sprintf('https://%s.r-universe.dev/packages', owner)
+    pkgs <- jsonlite::fromJSON(url)
+    if(length(pkgs)){
+      cat(sprintf("Skipping universe '%s' which contains packages: %s\n", owner, paste(pkgs, collapse = ', ')))
+      return(invisible())
+    }
+  }
+  cat("Deleting universe for:", owner, '\n')
+  gh::gh(paste0('/repos/r-universe/', owner), .method = 'DELETE')
 }

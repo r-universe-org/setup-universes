@@ -2,9 +2,20 @@
 % Please edit documentation in R/setup.R
 \name{setup_universes}
 \alias{setup_universes}
+\alias{create_universe_repo}
+\alias{delete_universe_repo}
 \title{Setup universes}
 \usage{
 setup_universes()
+
+create_universe_repo(owner)
+
+delete_universe_repo(owner, only_if_empty = FALSE)
+}
+\arguments{
+\item{owner}{create universe for this github account}
+
+\item{only_if_empty}{only delete the universe if there are no deployed packages}
 }
 \description{
 List app installations and setup universe repos.

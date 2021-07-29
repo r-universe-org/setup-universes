@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^Dockerfile$
+^action.yml$
+^entrypoint.sh$
+^.github$
