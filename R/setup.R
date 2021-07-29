@@ -5,11 +5,10 @@
 #' @rdname setup_universes
 #' @export
 setup_universes <- function(){
-  installs <- list_app_installations()
+  installs <- tolower(list_app_installations())
   cat("Found installations for:", installs, sep = '\n - ')
   universes <- list_universes()
   cat("Found universes for:", universes, sep = '\n - ')
-  installs <- tolower(installs)
   newbies <- setdiff(installs, c(universes, skiplist))
   if(!length(newbies)){
     cat("No NEW installations found.\n")
