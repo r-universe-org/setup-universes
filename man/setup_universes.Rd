@@ -4,6 +4,8 @@
 \alias{setup_universes}
 \alias{create_universe_repo}
 \alias{delete_universe_repo}
+\alias{find_stale_universes}
+\alias{delete_empty_universes}
 \title{Setup universes}
 \usage{
 setup_universes()
@@ -11,6 +13,10 @@ setup_universes()
 create_universe_repo(owner)
 
 delete_universe_repo(owner, only_if_empty = FALSE)
+
+find_stale_universes()
+
+delete_empty_universes()
 }
 \arguments{
 \item{owner}{create universe for this github account}

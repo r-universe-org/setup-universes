@@ -18,6 +18,7 @@ setup_universes <- function(){
     print(gh::gh_whoami())
     lapply(newbies, create_universe_repo)
   }
+  delete_empty_universes()
   deleted <- setdiff(universes, c(installs, testusers))
   if(length(deleted)){
     cat("Found DELETED installations:", deleted, sep = '\n - ')
@@ -87,4 +88,32 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
   }
   cat("Deleting universe for:", owner, '\n')
   gh::gh(paste0('/repos/r-universe/', owner), .method = 'DELETE')
+}
+
+#' @export
+#' @rdname setup_universes
+find_stale_universes <- function(){
+  universes <- find_universes()
+  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/organizations'), verbose = FALSE)
+  setdiff(universes, stats$organization)
+}
+
+#' @export
+#' @rdname setup_universes
+delete_empty_universes <- function(){
+  stales <- find_stale_universes()
+  if(length(stales) > 5){
+    stop("Found more than 5 empty universes. Maybe this is not right.")
+  }
+  lapply(stales, function(x){
+    cat("Uninstalling app for:", x, "\n")
+    ghapps::gh_app_installation_delete(x)
+  })
+}
+
+find_universes <- function(days = 7){
+  res <- gh::gh('/orgs/r-universe/repos', .limit = 1e5)
+  names <- vapply(res, function(x){x$name}, character(1))
+  updated <- as.Date(as.POSIXct(vapply(res, function(x){x$updated_at}, character(1))))
+  names[updated < (Sys.Date() - days)]
 }
