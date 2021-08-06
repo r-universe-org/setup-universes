@@ -18,7 +18,6 @@ setup_universes <- function(){
     print(gh::gh_whoami())
     lapply(newbies, create_universe_repo)
   }
-  delete_empty_universes()
   deleted <- setdiff(universes, c(installs, testusers))
   if(length(deleted)){
     cat("Found DELETED installations:", deleted, sep = '\n - ')
@@ -32,6 +31,7 @@ setup_universes <- function(){
       lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
     }
   }
+  try(delete_empty_universes())
   invisible()
 }
 
@@ -93,6 +93,7 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
 #' @export
 #' @rdname setup_universes
 find_stale_universes <- function(){
+  #TODO we should delete stale *installations*
   universes <- find_universes()
   stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/organizations'), verbose = FALSE)
   setdiff(universes, stats$organization)
