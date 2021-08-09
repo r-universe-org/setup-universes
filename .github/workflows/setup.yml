@@ -9,7 +9,7 @@ on:
   repository_dispatch:
     types: [created]
 
-name: Setup universes
+name: Setup and delete universes
 
 jobs:
   update:

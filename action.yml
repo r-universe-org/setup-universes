@@ -1,5 +1,6 @@
-name: 'Setup Universes'
-description: 'Action that checks for new app installations'
+name: 'Setup and Delete Universes'
+description: 'Action that checks for new or deleted app installations'
 runs:
   using: 'docker'
-  image: 'docker://runiverse/setup-universes'
+  image: 'docker://ghcr.io/r-universe-org/setup-universes'
+#  image: 'docker://runiverse/setup-universes'
