@@ -35,4 +35,4 @@ jobs:
           push: true
           tags: |
             runiverse/setup-universes:latest
-            ghcr.io/r-universe-org/setup-universes:latest
+            ghcr.io/${{github.repository}}:latest
