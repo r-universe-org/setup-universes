@@ -31,7 +31,7 @@ setup_universes <- function(){
       lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
     }
   }
-  try(delete_empty_universes())
+  delete_empty_universes()
   invisible()
 }
 
@@ -108,11 +108,13 @@ delete_empty_universes <- function(){
   }
   lapply(stales, function(x){
     cat("Uninstalling app for:", x, "\n")
-    ghapps::gh_app_installation_delete(x)
+    tryCatch(ghapps::gh_app_installation_delete(x), function(e){
+      cat("Failed to delete app for:", x, "(already deleted?)", "\n")
+    })
   })
 }
 
-find_universes <- function(days = 7){
+find_universes <- function(days = 14){
   res <- gh::gh('/orgs/r-universe/repos', .limit = 1e5)
   names <- vapply(res, function(x){x$name}, character(1))
   updated <- as.Date(as.POSIXct(vapply(res, function(x){x$updated_at}, character(1))))
