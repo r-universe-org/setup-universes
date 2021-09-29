@@ -37,7 +37,7 @@ setup_universes <- function(){
 
 list_app_installations <- function(){
   all <- ghapps::gh_app_installation_list(app_id = '87942')
-  vapply(all, function(x){x$account$login}, character(1))
+  tolower(vapply(all, function(x){x$account$login}, character(1)))
 }
 
 list_universes <- function(){
