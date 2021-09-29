@@ -103,8 +103,8 @@ find_stale_universes <- function(){
 #' @rdname setup_universes
 delete_empty_universes <- function(){
   stales <- find_stale_universes()
-  if(length(stales) > 5){
-    stop("Found more than 5 empty universes. Maybe this is not right.")
+  if(length(stales) > 10){
+    stop("Found more than 10 empty universes. Maybe this is not right.")
   }
   lapply(stales, function(x){
     cat("Uninstalling app for:", x, "\n")
