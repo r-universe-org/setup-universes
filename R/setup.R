@@ -106,9 +106,7 @@ delete_empty_universes <- function(){
   if(length(stales) > 10){
     stop("Found more than 10 empty universes. Maybe this is not right.")
   }
-  lapply(stales, function(x){
-    # Get exact username (call below is case sensitive)
-    username <- tryCatch(gh::gh(paste0('/users/', x))$login, error = function(...){x})
+  lapply(stales, function(username){
     cat("Uninstalling app for:", username, "\n")
     tryCatch(ghapps::gh_app_installation_delete(username), error = function(e){
       cat("Failed to delete app for:", username, "(already deleted?): ", e$message, "\n")
