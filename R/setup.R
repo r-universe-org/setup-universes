@@ -108,8 +108,9 @@ delete_empty_universes <- function(){
   }
   lapply(stales, function(x){
     cat("Uninstalling app for:", x, "\n")
-    userinfo <- gh::gh(paste0('/users/', x)) # Get exact username (call below is case sensitive)e
-    tryCatch(ghapps::gh_app_installation_delete(userinfo$login), error = function(e){
+    # Get exact username (call below is case sensitive)
+    username <- tryCatch(gh::gh(paste0('/users/', x))$login, error = function(...){x})
+    tryCatch(ghapps::gh_app_installation_delete(username), error = function(e){
       cat("Failed to delete app for:", x, "(already deleted?)", "\n")
     })
   })
