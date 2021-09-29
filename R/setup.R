@@ -108,7 +108,7 @@ delete_empty_universes <- function(){
   }
   lapply(stales, function(username){
     cat("Uninstalling app for:", username, "\n")
-    tryCatch(ghapps::gh_app_installation_delete(username), error = function(e){
+    tryCatch(ghapps::gh_app_installation_delete(username, app_id = '87942'), error = function(e){
       cat("Failed to delete app for:", username, "(already deleted?): ", e$message, "\n")
     })
   })
