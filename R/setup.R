@@ -114,7 +114,7 @@ delete_empty_universes <- function(){
   })
 }
 
-find_universes <- function(days = 14){
+find_universes <- function(days = 10){
   res <- gh::gh('/orgs/r-universe/repos', .limit = 1e5)
   names <- vapply(res, function(x){x$name}, character(1))
   updated <- as.Date(as.POSIXct(vapply(res, function(x){x$updated_at}, character(1))))
