@@ -45,7 +45,7 @@ list_universes <- function(){
 }
 
 # Ignore these orgs
-skiplist <- 'ropenscilabs'
+skiplist <- c('ropenscilabs', 'r-universe', 'r-universe-org')
 testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
                "hrbrmstr", "karthik", "mmaechler", "r-music", "rcppcore", "richfitz",
                "rladies", "sckott", "statnet", "thomasp85", "tidymodels", "tidyverse",
