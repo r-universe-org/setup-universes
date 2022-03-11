@@ -94,8 +94,8 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
 find_stale_universes <- function(){
   #TODO we should delete stale *installations*
   universes <- find_universes()
-  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/organizations'), verbose = FALSE)
-  setdiff(universes, stats$organization)
+  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/universes'), verbose = FALSE)
+  setdiff(universes, stats$universe)
 }
 
 #' @export
