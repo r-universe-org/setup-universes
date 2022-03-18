@@ -49,7 +49,7 @@ skiplist <- c('ropenscilabs', 'r-universe', 'r-universe-org')
 testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
                "hrbrmstr", "karthik", "mmaechler", "r-music", "rcppcore", "richfitz",
                "rladies", "sckott", "statnet", "thomasp85", "tidymodels", "tidyverse",
-               "yihui", "test")
+               "yihui", "test", "s-u")
 
 #' @export
 #' @rdname setup_universes
