@@ -5,11 +5,14 @@
 #' @rdname setup_universes
 #' @export
 setup_universes <- function(){
+  # Query universes and apps
   installs <- tolower(list_app_installations())
   cat("Found installations for:", installs, sep = '\n - ')
   universes <- list_universes()
   cat("Found universes for:", universes, sep = '\n - ')
-  newbies <- setdiff(installs, c(universes, skiplist))
+
+  # Setup / delete
+  newbies <- setdiff(c(installs, testusers), c(universes, skiplist))
   if(!length(newbies)){
     cat("No NEW installations found.\n")
   } else {
@@ -49,7 +52,10 @@ skiplist <- c('ropenscilabs', 'r-universe', 'r-universe-org')
 testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
                "hrbrmstr", "karthik", "mmaechler", "r-music", "rcppcore", "richfitz",
                "rladies", "sckott", "statnet", "thomasp85", "tidymodels", "tidyverse",
-               "yihui", "test", "s-u", 'dmurdoch')
+               "yihui", "test", "s-u", 'dmurdoch', 'yulab-smu', 'poissonconsulting',
+               'paws-r', 'business-science', 'mangothecat','uscbiostats','usgs-r',
+               'mazamascience','dynverse', 'reconhub', 'girke-lab', 'ohdsi','quanteda',
+               'rikenbit','stan-dev','storeylab','hansenlab')
 
 #' @export
 #' @rdname setup_universes
