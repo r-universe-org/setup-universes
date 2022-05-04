@@ -55,7 +55,7 @@ testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
                "yihui", "test", "s-u", 'dmurdoch', 'yulab-smu', 'poissonconsulting',
                'paws-r', 'business-science', 'mangothecat','uscbiostats','usgs-r',
                'mazamascience','dynverse', 'reconhub', 'girke-lab', 'ohdsi','quanteda',
-               'rikenbit','stan-dev','storeylab','hansenlab')
+               'rikenbit','stan-dev','storeylab','hansenlab','amices')
 
 #' @export
 #' @rdname setup_universes
