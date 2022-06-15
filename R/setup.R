@@ -10,6 +10,9 @@ setup_universes <- function(){
   cat("Found installations for:", installs, sep = '\n - ')
   universes <- list_universes()
   cat("Found universes for:", universes, sep = '\n - ')
+  cran <- utils::read.csv('https://r-universe-org.github.io/cran-to-git/crantogit.csv')
+  cran$owner <- sub('https://([a-z]+).*/([^/]*)/.*', '\\1-\\2', cran$url)
+  owners <- sub('github-', '', names(sort(table(cran$owner), decreasing = T)))
 
   # Setup / delete
   newbies <- setdiff(c(installs, testusers), c(universes, skiplist))
@@ -20,7 +23,7 @@ setup_universes <- function(){
     print(gh::gh_whoami())
     lapply(newbies, create_universe_repo)
   }
-  deleted <- setdiff(universes, c(installs, testusers))
+  deleted <- setdiff(universes, c(installs, testusers, owners))
   if(length(deleted)){
     cat("Found DELETED installations:", deleted, sep = '\n - ')
     if(length(deleted) > 20){
@@ -34,6 +37,11 @@ setup_universes <- function(){
     }
   }
   delete_empty_universes()
+
+  # Gradually start adding CRAN users 5 per hour
+  newcran <- setdiff(owners, universes)
+  cat("Ingesting some new CRAN users\n")
+  lapply(utils::head(newcran, 5), create_universe_repo)
   invisible()
 }
 
