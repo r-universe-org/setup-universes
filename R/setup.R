@@ -41,7 +41,7 @@ setup_universes <- function(){
   # Gradually start adding CRAN users 5 per hour
   newcran <- setdiff(owners, universes)
   cat("Ingesting some new CRAN users\n")
-  lapply(utils::head(newcran, 5), create_universe_repo)
+  lapply(utils::head(newcran, 10), create_universe_repo)
   invisible()
 }
 
@@ -59,13 +59,7 @@ list_universes <- function(){
 
 # Ignore these orgs
 skiplist <- c('ropenscilabs', 'r-universe', 'r-universe-org')
-testusers <- c("azure", "bioconductor", "cboettig", "eddelbuettel", "hadley",
-               "hrbrmstr", "karthik", "mmaechler", "r-music", "rcppcore", "richfitz",
-               "rladies", "sckott", "statnet", "thomasp85", "tidymodels", "tidyverse",
-               "yihui", "test", "s-u", 'dmurdoch', 'yulab-smu', 'poissonconsulting',
-               'paws-r', 'business-science', 'mangothecat','uscbiostats','usgs-r',
-               'mazamascience','dynverse', 'reconhub', 'girke-lab', 'ohdsi','quanteda',
-               'rikenbit','stan-dev','storeylab','hansenlab','amices','rdatatable', 'cran')
+testusers <- c("test", 'cran')
 
 #' @export
 #' @rdname setup_universes
