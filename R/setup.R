@@ -55,7 +55,7 @@ setup_universes <- function(){
   # Gradually start adding CRAN users 5 per hour
   newcran <- setdiff(owners, universes)
   cat("Ingesting some new CRAN users\n")
-  lapply(utils::head(newcran, 15), create_universe_repo)
+  lapply(utils::head(newcran, 25), create_universe_repo)
   invisible()
 }
 
