@@ -5,17 +5,13 @@
 #' @rdname setup_universes
 #' @export
 setup_universes <- function(){
-  # Query universes and apps
-  installs <- tolower(list_app_installations())
-  cat("Found installations for:", installs, sep = '\n - ')
+  cat("Listing app installations:\n")
+  print(installs <- list_app_installations())
+  cat("Checking universe monorepos...")
   universes <- list_universes()
-  cat("Found universes for:", universes, sep = '\n - ')
-  cran <- utils::read.csv('https://r-universe-org.github.io/cran-to-git/crantogit.csv')
-  cran$owner <- sub('https://([a-z]+).*/([^/]*)/.*', '\\1-\\2', cran$url)
-  owners <- sub('github-', '', names(sort(table(cran$owner), decreasing = T)))
 
-  # Setup / delete
-  newbies <- setdiff(c(installs, testusers), c(universes, skiplist))
+  # Check for NEW app installations first
+  newbies <- setdiff(c(installs$name, testusers), c(universes, skiplist))
   if(!length(newbies)){
     cat("No NEW installations found.\n")
   } else {
@@ -23,9 +19,28 @@ setup_universes <- function(){
     print(gh::gh_whoami())
     lapply(newbies, create_universe_repo)
   }
-  deleted <- setdiff(universes, c(installs, testusers, owners))
+
+  # Check for app installations that can be removed (no published packages)
+  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/universes'), verbose = FALSE)
+  oldies <- subset(installs, days > 10)
+  empties <- setdiff(oldies$name, c(skiplist, stats$universe))
+  if(length(empties) > 10){
+    stop("Found more than 10 empty installations. Maybe this is not right.")
+  }
+  for(username in empties){
+    cat("Uninstalling app for:", username, "\n")
+    tryCatch(ghapps::gh_app_installation_delete(username, app_id = '87942'), error = function(e){
+      cat("Failed to delete app for:", username, "(already deleted?): ", e$message, "\n")
+    })
+  }
+
+  # Check for monorepos that are no longer needed
+  cran <- utils::read.csv('https://r-universe-org.github.io/cran-to-git/crantogit.csv')
+  cran$owner <- sub('https://([a-z]+).*/([^/]*)/.*', '\\1-\\2', cran$url)
+  owners <- sub('github-', '', names(sort(table(cran$owner), decreasing = T)))
+  deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
-    cat("Found DELETED installations:", deleted, sep = '\n - ')
+    cat("Cleaning monorepos without app installation or cran packages:", deleted, sep = '\n - ')
     if(length(deleted) > 20){
       cat("This number looks too large. Not deleting anything.\n")
       stop("Failed to list app installations?")
@@ -36,18 +51,12 @@ setup_universes <- function(){
       lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
     }
   }
-  delete_empty_universes()
 
   # Gradually start adding CRAN users 5 per hour
   newcran <- setdiff(owners, universes)
   cat("Ingesting some new CRAN users\n")
   lapply(utils::head(newcran, 15), create_universe_repo)
   invisible()
-}
-
-list_app_installations <- function(){
-  all <- ghapps::gh_app_installation_list(app_id = '87942')
-  tolower(vapply(all, function(x){x$account$login}, character(1)))
 }
 
 list_universes <- function(){
@@ -99,33 +108,11 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
   gh::gh(paste0('/repos/r-universe/', owner), .method = 'DELETE')
 }
 
-#' @export
-#' @rdname setup_universes
-find_stale_universes <- function(){
-  #TODO we should delete stale *installations*
-  universes <- find_universes()
-  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/universes'), verbose = FALSE)
-  setdiff(universes, stats$universe)
-}
-
-#' @export
-#' @rdname setup_universes
-delete_empty_universes <- function(){
-  stales <- find_stale_universes()
-  if(length(stales) > 10){
-    stop("Found more than 10 empty universes. Maybe this is not right.")
-  }
-  lapply(stales, function(username){
-    cat("Uninstalling app for:", username, "\n")
-    tryCatch(ghapps::gh_app_installation_delete(username, app_id = '87942'), error = function(e){
-      cat("Failed to delete app for:", username, "(already deleted?): ", e$message, "\n")
-    })
-  })
-}
-
-find_universes <- function(days = 10){
-  res <- gh::gh('/orgs/r-universe/repos', .limit = 1e5)
-  names <- vapply(res, function(x){x$name}, character(1))
-  updated <- as.Date(as.POSIXct(vapply(res, function(x){x$pushed_at}, character(1))))
-  names[updated < (Sys.Date() - days)]
+list_app_installations <- function(){
+  all <- ghapps::gh_app_installation_list(app_id = '87942')
+  names <- tolower(vapply(all, function(x){x$account$login}, character(1)))
+  created <- as.POSIXct(chartr('TZ', '  ', vapply(all, function(x){x$created_at}, character(1))))
+  updated <- as.POSIXct(chartr('TZ', '  ', vapply(all, function(x){x$updated_at}, character(1))))
+  df <- data.frame(name = names, created = created, updated = updated, days = Sys.Date() - as.Date(updated))
+  df[order(df$days),]
 }
