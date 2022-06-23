@@ -41,10 +41,10 @@ setup_universes <- function(){
   deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
     cat("Cleaning monorepos without app installation or cran packages:", deleted, sep = '\n - ')
-    if(length(deleted) > 20){
+    if(length(deleted) > 30){
       cat("This number looks too large. Not deleting anything.\n")
       stop("Failed to list app installations?")
-    } else if(length(deleted) > 5) {
+    } else if(length(deleted) > 15) {
       cat("This number looks a bit large. Only deleting empty universes.\n")
       lapply(deleted, delete_universe_repo, only_if_empty = TRUE)
     } else {
@@ -52,11 +52,12 @@ setup_universes <- function(){
     }
   }
 
-  # Gradually start adding CRAN users 5 per hour
+  # Check for new CRAN owners, limit batch add to 20
   newcran <- setdiff(owners, universes)
-  cat("Ingesting some new CRAN users\n")
-  lapply(utils::head(newcran, 25), create_universe_repo)
-  invisible()
+  if(length(newcran)){
+    cat("Found some new CRAN owners:\n", newcran, sep = '\n - ')
+    lapply(utils::head(newcran, 20), create_universe_repo)
+  }
 }
 
 list_universes <- function(){
