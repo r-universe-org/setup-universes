@@ -21,4 +21,5 @@ jobs:
         env:
           GH_APP_KEY: ${{ secrets.GH_APP_KEY }}
           GITHUB_PAT: ${{ secrets.GHPAT }}
+          CRANLIKEPWD: ${{ secrets.CRANLIKEPWD }}
           username: ${{ github.event.inputs.username }}
