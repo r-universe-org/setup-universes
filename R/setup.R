@@ -38,6 +38,7 @@ setup_universes <- function(){
   cran <- utils::read.csv('https://r-universe-org.github.io/cran-to-git/crantogit.csv')
   cran$owner <- sub('https://([a-z]+).*/([^/]*)/.*', '\\1-\\2', cran$url)
   owners <- sub('github-', '', names(sort(table(cran$owner), decreasing = T)))
+  owners <- setdiff(owners, skiplist)
   deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
     cat("Cleaning monorepos without app installation or cran packages:", deleted, sep = '\n - ')
@@ -97,12 +98,16 @@ create_universe_repo <- function(owner){
 #' @rdname setup_universes
 #' @param only_if_empty only delete the universe if there are no deployed packages
 delete_universe_repo <- function(owner, only_if_empty = FALSE){
-  if(only_if_empty){
-    url <- sprintf('https://%s.r-universe.dev/packages', owner)
-    pkgs <- jsonlite::fromJSON(url)
-    if(length(pkgs)){
+  url <- sprintf('https://%s.r-universe.dev/packages', owner)
+  pkgs <- jsonlite::fromJSON(url)
+  if(length(pkgs)){
+    if(only_if_empty){
       cat(sprintf("Skipping universe '%s' which contains packages: %s\n", owner, paste(pkgs, collapse = ', ')))
       return(invisible())
+    } else {
+      lapply(pkgs, function(pkg){
+        try(delete_package(url, pkg))
+      })
     }
   }
   cat("Deleting universe for:", owner, '\n')
@@ -116,4 +121,21 @@ list_app_installations <- function(){
   updated <- as.POSIXct(chartr('TZ', '  ', vapply(all, function(x){x$updated_at}, character(1))))
   df <- data.frame(name = names, created = created, updated = updated, days = Sys.Date() - as.Date(updated))
   df[order(df$days),]
+}
+
+delete_package <- function(cranlike_url, package){
+  message("Deleting: ", package)
+  userpwd <- Sys.getenv("CRANLIKEPWD", NA)
+  if(is.na(userpwd)) stop("No CRANLIKEPWD set, cannot deploy")
+  h <- curl::new_handle(customrequest = 'DELETE', userpwd = userpwd)
+  url <- sprintf("%s/%s", cranlike_url, package)
+  out <- parse_res(curl::curl_fetch_memory(url, handle = h))
+  stopifnot(identical(unique(out$Package), package))
+}
+
+parse_res <- function(res){
+  text <- rawToChar(res$content)
+  if(res$status >= 400)
+    stop(text)
+  jsonlite::fromJSON(text)
 }
