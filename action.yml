@@ -3,4 +3,3 @@ description: 'Action that checks for new or deleted app installations'
 runs:
   using: 'docker'
   image: 'docker://ghcr.io/r-universe-org/setup-universes'
-#  image: 'docker://runiverse/setup-universes'
