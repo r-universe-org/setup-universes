@@ -61,6 +61,18 @@ setup_universes <- function(){
   }
 }
 
+#' @export
+delete_orphans <- function(){
+  universes <- list_universes()
+  files <- jsonlite::stream_in(url('https://r-universe.dev/stats/files'))
+  files$orphan <- is.na(match(files$user,  universes))
+  deleted <- subset(files, orphan & !duplicated(paste0(files$user, '/', files$package)))
+  for(i in seq_len(nrow(deleted))){
+    cranlikeurl <- sprintf('https://%s.r-universe.dev/packages', deleted$user[i])
+    delete_package(cranlikeurl, deleted$package[i])
+  }
+}
+
 list_universes <- function(){
   res <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
   names <- tolower(vapply(res, function(x){x$name}, character(1)))
