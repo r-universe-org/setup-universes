@@ -29,7 +29,7 @@ setup_universes <- function(){
   }
   for(username in empties){
     cat("Uninstalling app for:", username, "\n")
-    tryCatch(ghapps::gh_app_installation_delete(username, app_id = '87942'), error = function(e){
+    tryCatch(ghapps::gh_app_installation_delete(username), error = function(e){
       cat("Failed to delete app for:", username, "(already deleted?): ", e$message, "\n")
     })
   }
@@ -127,7 +127,7 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
 }
 
 list_app_installations <- function(){
-  all <- ghapps::gh_app_installation_list(app_id = '87942')
+  all <- ghapps::gh_app_installation_list()
   names <- tolower(vapply(all, function(x){x$account$login}, character(1)))
   created <- as.POSIXct(chartr('TZ', '  ', vapply(all, function(x){x$created_at}, character(1))))
   updated <- as.POSIXct(chartr('TZ', '  ', vapply(all, function(x){x$updated_at}, character(1))))
