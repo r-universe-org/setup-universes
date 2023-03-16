@@ -57,7 +57,7 @@ setup_universes <- function(){
   newcran <- setdiff(owners, universes)
   if(length(newcran)){
     cat("Found some new CRAN owners:\n", newcran, sep = '\n - ')
-    lapply(utils::head(newcran, 20), create_universe_repo)
+    lapply(utils::head(newcran, 100), create_universe_repo)
   }
 }
 
