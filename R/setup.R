@@ -34,11 +34,12 @@ setup_universes <- function(){
     })
   }
 
+  # Download crantogit registries
+  crantogit <- jsonlite::fromJSON('https://r-universe-org.github.io/cran-to-git/index.json')
+  cranrepos <- names(sort(unlist(crantogit), decreasing = TRUE))
+  owners <- setdiff(cranrepos, skiplist)
+
   # Check for monorepos that are no longer needed
-  cran <- utils::read.csv('https://r-universe-org.github.io/cran-to-git/crantogit.csv')
-  cran$owner <- sub('https://([a-z]+).*/([^/]*)/.*', '\\1-\\2', cran$url)
-  owners <- sub('github-', '', names(sort(table(cran$owner), decreasing = T)))
-  owners <- setdiff(owners, skiplist)
   deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
     cat("Cleaning monorepos without app installation or cran packages:", deleted, sep = '\n - ')
@@ -57,7 +58,7 @@ setup_universes <- function(){
   newcran <- setdiff(owners, universes)
   if(length(newcran)){
     cat("Found some new CRAN owners:\n", newcran, sep = '\n - ')
-    lapply(utils::head(newcran, 100), create_universe_repo)
+    lapply(utils::head(newcran, 200), create_universe_repo)
   }
 }
 
