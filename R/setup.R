@@ -43,7 +43,7 @@ setup_universes <- function(){
   deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
     cat("Cleaning monorepos without app installation or cran packages:", deleted, sep = '\n - ')
-    if(length(deleted) > 30){
+    if(length(deleted) > 30 && Sys.getenv('FORCE_DELETE') == ""){
       cat("This number looks too large. Not deleting anything.\n")
       stop("Failed to list app installations?")
     } else if(length(deleted) > 15) {
