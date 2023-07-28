@@ -24,6 +24,7 @@ setup_universes <- function(){
   stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/universes'), verbose = FALSE)
   oldies <- subset(installs, days > 10)
   empties <- setdiff(oldies$name, c(skiplist, stats$universe))
+  cat("Found empty universes: ", paste(empties, collapse = ", "), "\n")
   if(length(empties) > 10){
     stop("Found more than 10 empty installations. Maybe this is not right.")
   }
