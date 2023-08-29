@@ -40,6 +40,13 @@ setup_universes <- function(){
   cranrepos <- names(sort(unlist(crantogit), decreasing = TRUE))
   owners <- setdiff(cranrepos, skiplist)
 
+  # Check for new CRAN owners, limit batch add to 20
+  newcran <- setdiff(owners, universes)
+  if(length(newcran)){
+    cat("Found some new CRAN owners:\n", newcran, sep = '\n - ')
+    lapply(utils::head(newcran, 200), create_universe_repo)
+  }
+
   # Check for monorepos that are no longer needed
   deleted <- setdiff(universes, c(installs$name, testusers, owners))
   if(length(deleted)){
@@ -53,13 +60,6 @@ setup_universes <- function(){
     } else {
       lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
     }
-  }
-
-  # Check for new CRAN owners, limit batch add to 20
-  newcran <- setdiff(owners, universes)
-  if(length(newcran)){
-    cat("Found some new CRAN owners:\n", newcran, sep = '\n - ')
-    lapply(utils::head(newcran, 200), create_universe_repo)
   }
 }
 
