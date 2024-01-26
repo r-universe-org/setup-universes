@@ -9,21 +9,40 @@ find_old_registries <- function(){
     })
   }
   oldies <- subset(installs, basename(installs$registry) == 'universe')
-
+  return(oldies)
 }
 
-issue_body <- function(name){
-gsub('{user}', name, fixed = TRUE, 'Dear r-universe early adopter,
-
-This is a one time message from [r-universe](https://r-universe.dev)!
-
-We made a small change in the system which requires your action: To keep using
-[this registry](https://github.com/{user}/universe/blob/main/packages.json) for [your universe](https://{user}.r-universe.dev), __please rename the current repository from `universe`
-into `{user}.r-universe.dev`__, i.e. the full domain of your universe.
-
-For more information see: https://ropensci.org/blog/2023/02/07/runiverse-registry-repo/
-
-We appreciate your help. Thank you for using r-universe! 🚀
-
-')
+issue_title <- function(name){
+  sprintf("Action required: please rename this repo to: %s.r-universe.dev", name)
 }
+
+issue_body <- function(name, has_cran_to_git){
+txt <- gsub('{user}', name, fixed = TRUE, 'Dear r-universe user,
+
+Last year we made a small security fix which requires your action:
+
+To keep using your current [package list](https://github.com/{user}/universe/blob/HEAD/packages.json) for [https://{user}.r-universe.dev](https://{user}.r-universe.dev), __please [rename](https://github.com/{user}/universe/settings) the `{user}/universe` git repo from `universe` into `{user}.r-universe.dev`__, i.e. the full domain name of your universe.\n')
+
+if(has_cran_to_git){
+  txt <- paste(txt, gsub('{user}', name, fixed = TRUE, '\nAlternatively you can delete this repo, in which case {user}.r-universe.dev will show the automatically generated package list from: https://github.com/r-universe-org/cran-to-git/blob/HEAD/{user}.json\n'))
+}
+
+txt <- paste(txt, '\nFor more information [this blog post](https://ropensci.org/blog/2023/02/07/runiverse-registry-repo/).
+
+Thank you for using r-universe! Feel free to reach out if you have any questions 🚀')
+}
+
+create_rename_issue <- function(name){
+  tryCatch({
+    req <- curl::curl_fetch_memory(sprintf('https://github.com/r-universe-org/cran-to-git/blob/HEAD/%s.json', name))
+    has_cran_to_git <- req$status_code == 200
+    token <- ghapps::gh_app_token(name)
+    gh::gh('POST /repos/{owner}/universe/issues',
+           owner = name,
+           title = issue_title(name),
+           body = issue_body(name, has_cran_to_git), .token = token)
+    cat(name, 'created!\n')
+    TRUE
+  }, error = function(e) FALSE)
+}
+
