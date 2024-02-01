@@ -8,7 +8,8 @@ find_old_registries <- function(){
       message(installs$name[i], ' OK')
     })
   }
-  oldies <- subset(installs, basename(installs$registry) == 'universe')
+  oldies <- subset(installs, basename(installs$registry) != sprintf('%s.r-universe.dev', installs$name))
+  oldies <- subset(oldies, basename(oldies$registry) != 'cran-to-git')
   return(oldies)
 }
 
