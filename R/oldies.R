@@ -46,3 +46,37 @@ create_rename_issue <- function(name){
   }, error = function(e) FALSE)
 }
 
+
+comment_in_issue <- function(name){
+  tryCatch({
+    token <- ghapps::gh_app_token(name)
+    commits <- gh::gh('/repos/{owner}/universe/commits',
+                  owner = name, .token = token, .limit = 1000)
+    authors <- unique(vapply(commits, function(x){
+      if(x$committer$login == 'web-flow'){
+        x$author$login
+      } else {
+        x$committer$login
+      }
+    }, character(1)))
+
+    issues <- gh::gh('/repos/{owner}/universe/issues',
+                  owner = name,
+                  creator='r-universe[bot]', .token = token)
+    issue_number <- issues[[1]]$number
+    if(basename(issues[[1]]$repository_url) != 'universe'){
+      message("Repository seems already renamed?? ", issues[[1]]$repository_url)
+      return(FALSE)
+    }
+
+    txt <- "Friendly reminder: this registry will soon be de-activated. You can re-active it at any time by renaming this repository as explaind above."
+    txt <- paste(txt, '\n\ncc:',  paste0("@", unique(c(name, authors)), collapse = ' '))
+    comment <- gh::gh('POST /repos/{owner}/universe/issues/{issue_number}/comments',
+                  owner = name, issue_number = issue_number, body = txt)
+    cat(name, 'Comment created!\n')
+    TRUE
+  }, error = function(e) {
+    message(e)
+    FALSE
+  })
+}
