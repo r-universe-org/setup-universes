@@ -10,7 +10,18 @@ find_old_registries <- function(){
   }
   oldies <- subset(installs, basename(installs$registry) != sprintf('%s.r-universe.dev', installs$name))
   oldies <- subset(oldies, basename(oldies$registry) != 'cran-to-git')
+  oldies$size <- sapply(oldies$name, count_packages)
   return(oldies)
+}
+
+count_packages <- function(universe){
+  length(jsonlite::fromJSON(sprintf('https://%s.r-universe.dev/api/ls', universe)))
+}
+
+search_oldies <- function(){
+  query <- curl::curl_escape('org:r-universe path:.gitmodules /universe')
+  out <- gh::gh('/search/code?type=code&q=org%3Ar-universe%20%2Funiverse', .limit = 1000)
+  sapply(out$items, function(x){x$repository$name})
 }
 
 issue_title <- function(name){
