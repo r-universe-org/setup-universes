@@ -61,6 +61,15 @@ setup_universes <- function(){
       lapply(deleted, delete_universe_repo, only_if_empty = FALSE)
     }
   }
+
+  # Remove packages that do not belong to an existing universe
+  orphans <- setdiff(stats$universe, universes)
+  if(length(orphans) > 10){
+    stop("More than 10 orphan universes found:", paste(orphans, collapse = ', '))
+  }
+  lapply(orphans, function(x){
+    try(delete_universe_repo(x))
+  })
 }
 
 #' @export
