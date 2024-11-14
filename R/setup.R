@@ -21,7 +21,7 @@ setup_universes <- function(){
   }
 
   # Check for app installations that can be removed (no published packages)
-  stats <- jsonlite::stream_in(url('https://r-universe.dev/stats/universes'), verbose = FALSE)
+  stats <- runiverse_stream_in('/stats/universes')
   oldies <- subset(installs, days > 10)
   empties <- setdiff(oldies$name, c(skiplist, stats$universe))
   cat("Found empty universes: ", paste(empties, collapse = ", "), "\n")
@@ -75,7 +75,7 @@ setup_universes <- function(){
 #' @export
 delete_orphans <- function(){
   universes <- list_universes()
-  files <- jsonlite::stream_in(url('https://r-universe.dev/stats/files'))
+  files <- runiverse_stream_in('/stats/files')
   files$orphan <- is.na(match(files$user,  universes))
   deleted <- subset(files, orphan & !duplicated(paste0(files$user, '/', files$package)))
   for(i in seq_len(nrow(deleted))){
@@ -160,4 +160,10 @@ parse_res <- function(res){
   if(res$status >= 400)
     stop(text)
   jsonlite::fromJSON(text)
+}
+
+runiverse_stream_in <- function(path){
+  urlstr <- sprintf('https://r-universe.dev%s?nocache=%f', path, rnorm(1))
+  message("Getting ", urlstr)
+  jsonlite::stream_in(url(urlstr), verbose = interactive())
 }
