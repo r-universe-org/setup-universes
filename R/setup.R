@@ -79,7 +79,7 @@ delete_orphans <- function(){
   files$orphan <- is.na(match(files$user,  universes))
   deleted <- subset(files, orphan & !duplicated(paste0(files$user, '/', files$package)))
   for(i in seq_len(nrow(deleted))){
-    cranlikeurl <- sprintf('https://%s.r-universe.dev/packages', deleted$user[i])
+    cranlikeurl <- sprintf('https://%s.r-universe.dev/api/packages', deleted$user[i])
     delete_package(cranlikeurl, deleted$package[i])
   }
 }
@@ -128,7 +128,7 @@ delete_universe_repo <- function(owner, only_if_empty = FALSE){
       return(invisible())
     } else {
       lapply(pkgs, function(pkg){
-        try(delete_package(sprintf('https://%s.r-universe.dev/packages', owner), pkg))
+        try(delete_package(sprintf('https://%s.r-universe.dev/api/packages', owner), pkg))
       })
     }
   }
