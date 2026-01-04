@@ -92,7 +92,7 @@ list_universes <- function(){
 }
 
 # Ignore these orgs
-skiplist <- c('ropenscilabs', 'ropensci-archive', 'r-universe', 'r-universe-org', 'actions')
+skiplist <- c('bioconductor-source', 'ropenscilabs', 'ropensci-archive', 'r-universe', 'r-universe-org', 'actions')
 testusers <- c("test", 'actions', 'cran', 'bioc', 'bioc-release', 'r-multiverse', 'r-multiverse-staging', 'ropensci-champions', 'cranhaven')
 
 #' @export
