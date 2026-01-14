@@ -21,8 +21,8 @@ setup_universes <- function(){
   }
 
   # Check for app installations that can be removed (no published packages)
-  stats <- runiverse_stream_in('/stats/universes')
-  oldies <- subset(installs, days > 10)
+  stats <- runiverse_stream_in('/api/universes?stream=1')
+  oldies <- subset(installs, days > 30)
   empties <- setdiff(oldies$name, c(skiplist, stats$universe))
   cat("Found empty universes: ", paste(empties, collapse = ", "), "\n")
   if(length(empties) > 10 && Sys.getenv('FORCE_DELETE') == ""){
