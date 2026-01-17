@@ -14,8 +14,16 @@ find_old_registries <- function(){
   return(oldies)
 }
 
+list_packages <- function(owner){
+  url <- sprintf('https://%s.r-universe.dev/api/ls', owner)
+  req <- curl::curl_fetch_memory(url)
+  if(req$status_code == 404) return(vector())
+  if(req$status_code != 200) stop(rawToChar(req$content))
+  jsonlite::fromJSON(rawToChar(req$content))
+}
+
 count_packages <- function(universe){
-  length(jsonlite::fromJSON(sprintf('https://%s.r-universe.dev/api/ls', universe)))
+  length(list_packages(universe))
 }
 
 search_oldies <- function(){

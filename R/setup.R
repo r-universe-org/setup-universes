@@ -121,7 +121,7 @@ create_universe_repo <- function(owner){
 #' @rdname setup_universes
 #' @param only_if_empty only delete the universe if there are no deployed packages
 delete_universe_repo <- function(owner, only_if_empty = FALSE){
-  pkgs <- jsonlite::fromJSON(sprintf('https://%s.r-universe.dev/api/ls', owner))
+  pkgs <- list_packages(owner)
   if(length(pkgs)){
     if(only_if_empty){
       cat(sprintf("Skipping universe '%s' which contains packages: %s\n", owner, paste(pkgs, collapse = ', ')))
