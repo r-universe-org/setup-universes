@@ -105,7 +105,7 @@ create_universe_repo <- function(owner){
   gh::gh('/orgs/r-universe/repos', name = owner, description = desc,
          homepage = homepage, private = FALSE, .method = 'POST')
   cat(sprintf("Repo 'r-universe/%s' created! Waiting a few seconds before pushing...\n", owner))
-  for(i in 10:1){cat(i, '\n'); Sys.sleep(1)}
+  for(i in 60:1){cat(i, '\n'); Sys.sleep(1)}
   repo <- file.path(tempdir(), paste0(owner, '-universe'))
   remote <- paste0('https://github.com/r-universe/', owner)
   gert::git_clone('https://github.com/r-universe-org/universe-template', path = repo)
