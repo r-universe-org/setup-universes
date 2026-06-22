@@ -113,6 +113,15 @@ create_universe_repo <- function(owner){
   on.exit(setwd(pwd))
   setwd(repo)
   gert::git_remote_add(remote, name = 'universe')
+
+  # Push commits one by one to trigger workflow on second push
+  for(sha in rev(gert::git_log()$commit)){
+    refspec <- sprintf('%s:%s', sha, gert::git_info()$head)
+    gert::git_push('universe', refspec = refspec)
+    Sys.sleep(1)
+  }
+
+  # Commit remaining commits
   gert::git_push('universe')
   cat("Done!\n")
 }
