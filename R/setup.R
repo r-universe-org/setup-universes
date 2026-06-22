@@ -85,7 +85,7 @@ delete_orphans <- function(){
 }
 
 list_universes <- function(){
-  res <- gh::gh('/users/r-universe/repos', per_page = 100, .limit = 1e5)
+  res <- gh::gh('/users/r-universe/repos', .limit = Inf)
   names <- tolower(vapply(res, function(x){x$name}, character(1)))
   updated <- as.POSIXct(chartr('TZ', '  ', vapply(res, function(x){x$pushed_at}, character(1))))
   names[order(updated, decreasing = TRUE)]
